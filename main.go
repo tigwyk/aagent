@@ -21,7 +21,7 @@ func firstStartup() {
 	a = createBlankAgent()
 	a.OS = gleanOS()
 	a.Location = gleanLocation()
-	a.UUID = generateHWID()
+	a.UUID = generateHWID().String()
 	phoneHome()
 }
 
@@ -56,7 +56,7 @@ func createBlankAgent() *Agent {
 //Agent data structure
 type Agent struct {
 	ID          int       `json:"id"`
-	UUID        uuid.UUID `json:"uuid"`
+	UUID        string    `json:"uuid"`
 	OS          string    `json:"os"`
 	Location    string    `json:"location"`
 	CreatedDate time.Time `json:"createddate"`
