@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"runtime"
 	"time"
 
 	"github.com/satori/go.uuid"
@@ -42,7 +43,7 @@ func gleanLocation() string {
 }
 
 func gleanOS() string {
-	return "Windows"
+	return runtime.GOOS
 }
 
 func generateHWID() uuid.UUID {
