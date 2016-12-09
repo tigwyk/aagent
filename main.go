@@ -10,19 +10,22 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+var a *Agent
+
 func main() {
 	firstStartup()
 }
 
 func firstStartup() {
 	fmt.Println("First time")
+	a = createBlankAgent()
+	a.OS = gleanOS()
+	a.Location = gleanLocation()
+	a.UUID = generateHWID()
 	phoneHome()
 }
 
 func phoneHome() {
-	a := createBlankAgent()
-	a.OS = gleanOS()
-	a.Location = gleanLocation()
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(a)
 	r, err := http.Post("http://git.leeingram.com:8765/agents", "application/json; charset=utf-8", b)
@@ -40,6 +43,10 @@ func gleanLocation() string {
 
 func gleanOS() string {
 	return "Windows"
+}
+
+func generateHWID() uuid.UUID {
+	return uuid.NewV1()
 }
 
 func createBlankAgent() *Agent {
