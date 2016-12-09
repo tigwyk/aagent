@@ -13,29 +13,54 @@ import (
 
 var a *Agent
 
+var HWID string
+
+const HOME_URL string = "http://git.leeingram.com:8765"
+
 func main() {
-	firstStartup()
+	HWID = generateHWID()
+	a = createBlankAgent()
+	if checkFirstRun() {
+		firstStartup()
+	} else {
+		fmt.Println(a)
+	}
+}
+
+func checkFirstRun() bool {
+	url := HOME_URL + "/agents/" + HWID
+	fmt.Println(url)
+	r, err := http.Get(url)
+	if err != nil {
+		panic(err)
+	}
+	defer r.Body.Close()
+
+	json.NewDecoder(r.Body).Decode(a)
+	if a.ID != 0 {
+		return false
+	}
+	return true
 }
 
 func firstStartup() {
 	fmt.Println("First time")
-	a = createBlankAgent()
 	a.OS = gleanOS()
 	a.Location = gleanLocation()
-	a.UUID = generateHWID().String()
-	phoneHome()
+	a.UUID = generateHWID()
+	registerAgent()
 }
 
-func phoneHome() {
+func registerAgent() {
 	b := new(bytes.Buffer)
 	json.NewEncoder(b).Encode(a)
-	r, err := http.Post("http://git.leeingram.com:8765/agents", "application/json; charset=utf-8", b)
+	r, err := http.Post(HOME_URL+"/agents", "application/json; charset=utf-8", b)
 	if err != nil {
 		panic(err)
 	}
 	defer r.Body.Close()
 	json.NewDecoder(r.Body).Decode(a)
-	fmt.Println(a.UUID)
+	fmt.Println("Agent registered:", a.UUID)
 }
 
 func gleanLocation() string {
@@ -46,8 +71,8 @@ func gleanOS() string {
 	return runtime.GOOS
 }
 
-func generateHWID() uuid.UUID {
-	return uuid.NewV1()
+func generateHWID() string {
+	return uuid.NewV1().String()
 }
 
 func createBlankAgent() *Agent {
